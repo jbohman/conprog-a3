@@ -12,6 +12,13 @@ class SquarePacking : public Script {
 
     public:
         SquarePacking(const SizeOptions& opt) : x(*this, opt.size()), y(*this, opt.size()) { 
+            int min = 0;
+            int max = 0;
+            for (int i = 0; i < opt.size(); ++i) {
+                min += i*i;
+                max += i;
+            }
+            s = IntVar(*this, sqrt(min), max);
             //branch(*this, q, INT_VAR_RND, INT_VAL_MAX);
         }
 
