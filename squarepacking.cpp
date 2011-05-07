@@ -16,7 +16,8 @@ class SquarePacking : public Script {
         }
 
     public:
-        SquarePacking(const SizeOptions& opt) : x(*this, opt.size()), y(*this, opt.size()) { 
+        SquarePacking(const SizeOptions& opt) : x(*this, opt.size()), y(*this, opt.size()) {
+            // Step 1: Variables s, x, y and static size method.
             int min = 0;
             int max = 0;
             for (int i = 0; i < opt.size(); ++i) {
@@ -24,7 +25,26 @@ class SquarePacking : public Script {
                 max += i;
             }
             s = IntVar(*this, sqrt(min), max);
-            //branch(*this, q, INT_VAR_RND, INT_VAL_MAX);
+
+            // Step 2: No overlapping between squares, expressed with reification.
+            BoolVarArgs rx(*this, N, 0, 1);
+            BoolVarArgs ry(*this, N, 0, 1);
+
+            for (int i = 0; i < x.size(); ++i) {
+                for (int j = i + 1; j < y.size(); ++j) {
+                    // Do something with rx/ry?
+                }
+            }
+
+            // Step 3: Sum of square sizes for every row and column, expressed with reification.
+
+
+            // Step 4: Additional propagators
+
+
+            // Step 5: Branching heuristics
+            //branch(*this, x, INT_VAR_MIN_MIN, INT_VAL_MIN);
+            //branch(*this, y, INT_VAR_MIN_MIN, INT_VAL_MIN);
         }
 
         SquarePacking(bool share, SquarePacking& sp) : Script(share, sp) {
