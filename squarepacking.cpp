@@ -4,11 +4,16 @@
 
 using namespace Gecode;
 
+int N;
+
 class SquarePacking : public Script {
     protected:
         IntVar s;
         IntVarArray x;
         IntVarArray y;
+        static int size(int square_number) {
+            return N - square_number;
+        }
 
     public:
         SquarePacking(const SizeOptions& opt) : x(*this, opt.size()), y(*this, opt.size()) { 
@@ -39,8 +44,9 @@ class SquarePacking : public Script {
 
 int main(int argc, char* argv[]) {
     SizeOptions opt("SquarePacking");
-    opt.size(10);
+    opt.size(6);
     opt.parse(argc,argv);
+    N = opt.size();
     Script::run<SquarePacking, DFS, SizeOptions>(opt);
     return 0;
 }
