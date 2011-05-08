@@ -71,6 +71,8 @@ class SquarePacking : public Script {
             // Step 4: Additional propagators
             
             // Step 4.1: Problem decomposition
+            
+            rel(*this, (s*s) > ((N * (N+1) * (2 * N+1))/6));
 
             // Step 4.2: Symmetry removal
             
@@ -79,6 +81,35 @@ class SquarePacking : public Script {
 
 
             // Step 4.3: Empty strip dominance
+
+            for (int i = 0; i < N; ++i) {
+                int siz = size(i);
+                int gt = 0;
+                if (siz == 2 || siz == 4)
+                    gt = 2;
+                else if (siz == 3 || (siz >= 5 && siz <= 8))
+                    gt = 3;
+                else if (siz <= 11)
+                    gt = 4;
+                else if (siz <= 17)
+                    gt = 5;
+                else if (siz <= 21)
+                    gt = 6;
+                else if (siz <= 29)
+                    gt = 7;
+                else if (siz <= 34)
+                    gt = 8;
+                else if (siz <= 44)
+                    gt = 9;
+                else if (siz <= 45)
+                    gt = 10;
+
+                if (gt != 0) {
+                    rel(*this, x[i] != gt);
+                    rel(*this, y[i] != gt);
+                }
+            }
+
 
             // Step 4.4: Ignoring size 1 squares
 
@@ -126,6 +157,7 @@ class SquarePacking : public Script {
             for (int i = 0; i < N; ++i) {
                 os << size(i) << + "\t(" << x[i] << ", " << y[i] << ")" << std::endl;
             }
+            // TODO The above stuff prints 1 at the wrong place
 
             char output[s.val()+1][s.val()+1];
             memset(output, 0, sizeof(output));
