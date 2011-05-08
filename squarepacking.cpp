@@ -12,13 +12,15 @@ class SquarePacking : public Script {
         IntVar s;
         IntVarArray x;
         IntVarArray y;
+        // Step 1a: Create static size method
         static int size(int square_number) {
             return N - square_number;
         }
 
     public:
-        SquarePacking(const SizeOptions& opt) : x(*this, opt.size()), y(*this, opt.size()) {
-            // Step 1: Variables s, x, y and static size method.
+        SquarePacking(const SizeOptions& opt) 
+                : x(*this, opt.size()), y(*this, opt.size()) {
+            // Step 1b: Initialize variables s, x, y
             int min = 0;
             int max = 0;
             for (int i = 0; i < opt.size(); ++i) {
@@ -33,20 +35,24 @@ class SquarePacking : public Script {
             }
 
             for (int i = 0; i < N; ++i) {
-                rel(*this, (x[i] + size(i) )<= s);
-                rel(*this, (y[i] + size(i) )<= s);
+                rel(*this, (x[i] + size(i)) <= s);
+                rel(*this, (y[i] + size(i)) <= s);
             }
 
-            // Step 2: No overlapping between squares, expressed with reification.
+            // Step 2: No overlapping between squares, expressed with
+            // reification.
             for (int i = 0; i < N-1; i++) {
                for (int j = i+1; j < N-1; j++) {
-                   rel(*this, (x[i] + size(i) <= x[j]) || (x[j] + size(j) <= x[i]) ||
-                       (y[i] + size(i) <= y[j]) || (y[j] + size(j) <= y[i]));  
+                   rel(*this, 
+                        (x[i] + size(i) <= x[j]) || 
+                        (x[j] + size(j) <= x[i]) ||
+                        (y[i] + size(i) <= y[j]) || 
+                        (y[j] + size(j) <= y[i]));  
                 }
             }
 
-            // Step 3: Sum of square sizes for every row and column less than s, expressed with reification.
-
+            // Step 3: Sum of square sizes for every row and column less than
+            // s, expressed with reification.
             IntArgs sizes(N-1);
             for (int i = 0; i < N-1; ++i) {
                 sizes[i] = size(i);
@@ -68,20 +74,14 @@ class SquarePacking : public Script {
                 linear(*this, sizes, bx, IRT_LQ, s);
              }
 
-            // Step 4: Additional propagators
-            
-            // Step 4.1: Problem decomposition
-            
+            // Step 4.1: Problem decomposition 
             rel(*this, (s*s) > ((N * (N+1) * (2 * N+1))/6));
 
             // Step 4.2: Symmetry removal
-            
             rel(*this, x[0] <= ((s - N)/2));
             rel(*this, y[0] <= ((s - N)/2));
 
-
             // Step 4.3: Empty strip dominance
-
             for (int i = 0; i < N; ++i) {
                 int siz = size(i);
                 int gt = 0;
@@ -110,31 +110,8 @@ class SquarePacking : public Script {
                 }
             }
 
-
-            // Step 4.4: Ignoring size 1 squares
-
-            // bool occupied[s.val()+1][s.val()+1];
-            // memset(occupied, 0, sizeof(occupied));
-// 
-            // for (int i = 0; i < N; ++i) {
-                // for (int j = 0; j < size(i); ++j) {
-                    // for (int k = 0; k < size(i); ++k) {
-                        // occupied[x[i].val()+j][y[i].val()+k] = true;
-                    // }
-                // }
-            // }
-// 
-            // for (int i = 0; i < s.val(); ++i) {
-                // for (int j = 0; j < s.val(); ++j) {
-                    // if (!occupied[i][j]) {
-                        // rel(*this, x[N-1] == i);
-                        // rel(*this, x[N-1] == i);
-                        // i = s.val();
-                        // break;
-                    // }
-                // }
-            // }
-
+            // Step 4.4: Ignoring size 1 squares, this is done by only looping
+            // until N-1 instead of N
 
             // Step 5: Branching heuristics
             branch(*this, s, INT_VAL_MIN); // (5a) Branch on s first
@@ -142,8 +119,10 @@ class SquarePacking : public Script {
             // is from the biggest to the smallest square
             // (5d) INT_VAL_MIN chooses the minimum value, that is placing it
             // from left to right and top to botom.
-            branch(*this, x, INT_VAR_NONE, INT_VAL_MIN); // (5b) First assign x-coordinates.             
-            branch(*this, y, INT_VAR_NONE, INT_VAL_MIN); // (5b) then y-coordinates. 
+            // (5b) First assign x-coordinates.     
+            branch(*this, x, INT_VAR_NONE, INT_VAL_MIN);
+            // (5b) then y-coordinates. 
+            branch(*this, y, INT_VAR_NONE, INT_VAL_MIN);
         }
 
         SquarePacking(bool share, SquarePacking& sp) : Script(share, sp) {
@@ -157,12 +136,6 @@ class SquarePacking : public Script {
         }
 
         virtual void print(std::ostream& os) const {
-            printf("s = %d\n", s.val());
-            for (int i = 0; i < N; ++i) {
-                os << size(i) << + "\t(" << x[i] << ", " << y[i] << ")" << std::endl;
-            }
-            // TODO The above stuff prints 1 at the wrong place
-
             char output[s.val()+1][s.val()+1];
             memset(output, 0, sizeof(output));
 
@@ -181,12 +154,12 @@ class SquarePacking : public Script {
                         if (!one) {
                             one = true;
                             printf(" 1");
+                        } else {
+                            printf("  ");
                         }
-                        else 
-                        printf("  ");
-                    }
-                    else
+                    } else {
                         printf("%2d", output[i][j]);
+                    }
                 }
                 printf("\n");
             }
@@ -195,7 +168,7 @@ class SquarePacking : public Script {
 
 int main(int argc, char* argv[]) {
     SizeOptions opt("SquarePacking");
-    opt.size(6);
+    opt.size(10);
     opt.parse(argc,argv);
     N = opt.size();
     Script::run<SquarePacking, DFS, SizeOptions>(opt);
