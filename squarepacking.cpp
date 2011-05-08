@@ -39,10 +39,18 @@ class SquarePacking : public Script {
                 }
             }
 
-            // Step 3: Sum of square sizes for every row and column, expressed with reification.
+            // Step 3: Sum of square sizes for every row and column less than s, expressed with reification.
 
 
             // Step 4: Additional propagators
+            
+            // Step 4.1: Problem decomposition
+
+            // Step 4.2: Symmetry removal
+
+            // Step 4.3: Empty strip dominance
+
+            // Step 4.4: Ignoring size 1 squares
 
 
             // Step 5: Branching heuristics
