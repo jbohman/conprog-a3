@@ -85,11 +85,19 @@ public:
 
   // Perform propagation
   virtual ExecStatus propagate(Space& home, const ModEventDelta&) {
+    for (int i = 0; i < x.size(); ++i) {
+        if (x[i].assigned()) {
 
-    //
-    // This is what YOU have to add!
-    //
+        }
+    }
 
+    for (int i = 0; i < y.size(); ++i) {
+        if (y[i].assigned()) {
+
+        }
+    }
+
+    //rel(*this, (x[i] + size(i) <= x[j]) || (x[j] + size(j) <= x[i]) || (y[i] + size(i) <= y[j]) || (y[j] + size(j) <= y[i]));  
   }
 
   // Dispose propagator and return its size
