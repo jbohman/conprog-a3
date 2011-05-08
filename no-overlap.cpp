@@ -125,6 +125,7 @@ class NoOverlap : public Propagator {
             if (subsumed)
                 return home.ES_SUBSUMED(*this);
 
+            return ES_NOFIX;
 
 
             //rel(*this, (x[i] + size(i) <= x[j]) || (x[j] + size(j) <= x[i]) || (y[i] + size(i) <= y[j]) || (y[j] + size(j) <= y[i]));  
