@@ -90,7 +90,7 @@ class NoOverlap : public Propagator {
                     for (int j = 0; j < x.size(); ++j) {
                         if (i != j) {
                             for (int k = 0; k < w[i]; ++k) {
-                                if (x[j].nq(x[i].val() + k) == Int::ME_INT_FAILED)
+                                if (x[j].nq(home, x[i].val() + k) == Int::ME_INT_FAILED)
                                     return ES_FAILED;
                             }
                         }
@@ -103,7 +103,7 @@ class NoOverlap : public Propagator {
                     for (int j = 0; j < y.size(); ++j) {
                         if (i != j) {
                             for (int k = 0; k < h[i]; ++k) {
-                                if (y[j].nq(y[i].val() + k) == Int::ME_INT_FAILED)
+                                if (y[j].nq(home, y[i].val() + k) == Int::ME_INT_FAILED)
                                     return ES_FAILED;
                             }
                         }
