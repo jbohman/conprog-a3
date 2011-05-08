@@ -91,12 +91,12 @@ class NoOverlap : public Propagator {
                         if (i == j) continue;
 
                         if (y[j].assigned() && (y[i].val() > y[j].val() && y[i].val() < y[j].val() + h[j])) {
-                            for (int k = x[i].val() - w[j]; k <= x[i].val() + w[i]; ++k) {
+                            for (int k = x[i].val() - w[i]; k <= x[i].val() + w[i]; ++k) {
                                 GECODE_ME_CHECK(x[j].nq(home, k));
                             }
                         }
                         if (x[j].assigned() && (x[i].val() > x[j].val() && x[i].val() < x[j].val() + w[j])) {
-                            for (int k = y[i].val() - h[j]; k <= y[i].val() + h[i]; ++k) {
+                            for (int k = y[i].val() - h[i]; k <= y[i].val() + h[i]; ++k) {
                                 GECODE_ME_CHECK(y[j].nq(home, k));
                             }
                         }

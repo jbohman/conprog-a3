@@ -144,6 +144,7 @@ class SquarePacking : public Script {
         }
 
         virtual void print(std::ostream& os) const {
+            printf("square size: %d\n", s.val());
             char output[s.val()+1][s.val()+1];
             memset(output, 0, sizeof(output));
 
