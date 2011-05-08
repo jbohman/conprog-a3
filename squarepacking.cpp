@@ -1,6 +1,7 @@
 #include <gecode/driver.hh>
 #include <gecode/int.hh>
 #include <gecode/minimodel.hh>
+#include <cstdio>
 
 using namespace Gecode;
 
@@ -31,6 +32,11 @@ class SquarePacking : public Script {
                 y[i] = IntVar(*this, 0, max);
             }
 
+            for (int i = 0; i < N; ++i) {
+                rel(*this, (x[i] + size(i) )<= s);
+                rel(*this, (y[i] + size(i) )<= s);
+            }
+
             // Step 2: No overlapping between squares, expressed with reification.
             for (int i = 0; i < N; i++) {
                for (int j = i+1; j < N; j++) {
@@ -41,6 +47,26 @@ class SquarePacking : public Script {
 
             // Step 3: Sum of square sizes for every row and column less than s, expressed with reification.
 
+            IntArgs sizes(N);
+            for (int i = 0; i < N; ++i) {
+                sizes[i] = size(i);
+            }
+
+            for (int col = 0; col < s.max(); ++col) {
+                BoolVarArgs bx(*this, N, 0, 1);
+                for (int i = 0; i < N; ++i) {
+                    dom(*this, y[i], col - size(i) + 1, col, bx[i]);
+                }
+                linear(*this, sizes, bx, IRT_LQ, s);
+            }
+
+            for (int col = 0; col < s.max(); ++col) {
+                BoolVarArgs bx(*this, N, 0, 1);
+                for (int i = 0; i < N; ++i) {
+                    dom(*this, x[i], col - size(i) + 1, col, bx[i]);
+                }
+                linear(*this, sizes, bx, IRT_LQ, s);
+            }
 
             // Step 4: Additional propagators
             
@@ -70,8 +96,30 @@ class SquarePacking : public Script {
         }
 
         virtual void print(std::ostream& os) const {
+            printf("s = %d\n", s.val());
             for (int i = 0; i < N; ++i) {
-                os << "(" << x[i] << ", " << y[i] << ")" << std::endl;
+                os << size(i) << + "\t(" << x[i] << ", " << y[i] << ")" << std::endl;
+            }
+
+            char output[s.val()+1][s.val()+1];
+            memset(output, 0, sizeof(output));
+
+            for (int i = 0; i < N; ++i) {
+                for (int j = 0; j < size(i); ++j) {
+                    for (int k = 0; k < size(i); ++k) {
+                        output[x[i].val()+j][y[i].val()+k] = size(i);
+                    }
+                }
+            }
+
+            for (int i = 0; i < s.val()+1; ++i) {
+                for (int j = 0; j < s.val()+1; ++j) {
+                    if (output[i][j] == 0)
+                        printf("  ");
+                    else
+                        printf("%2d", output[i][j]);
+                }
+                printf("\n");
             }
         }
 };
