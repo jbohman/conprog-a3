@@ -26,13 +26,16 @@ class SquarePacking : public Script {
             }
             s = IntVar(*this, sqrt(min), max);
 
-            // Step 2: No overlapping between squares, expressed with reification.
-            BoolVarArgs rx(*this, N, 0, 1);
-            BoolVarArgs ry(*this, N, 0, 1);
+            for (int i = 0; i < opt.size(); ++i) {
+                x[i] = IntVar(*this, 0, max);
+                y[i] = IntVar(*this, 0, max);
+            }
 
-            for (int i = 0; i < x.size(); ++i) {
-                for (int j = i + 1; j < y.size(); ++j) {
-                    // Do something with rx/ry?
+            // Step 2: No overlapping between squares, expressed with reification.
+            for (int i = 0; i < N; i++) {
+               for (int j = i+1; j < N; j++) {
+                   rel(*this, (x[i] + size(i) <= x[j]) || (x[j] + size(j) <= x[i]) ||
+                       (y[i] + size(i) <= y[j]) || (y[j] + size(j) <= y[i]));  
                 }
             }
 
@@ -43,8 +46,9 @@ class SquarePacking : public Script {
 
 
             // Step 5: Branching heuristics
-            //branch(*this, x, INT_VAR_MIN_MIN, INT_VAL_MIN);
-            //branch(*this, y, INT_VAR_MIN_MIN, INT_VAL_MIN);
+            branch(*this, s, INT_VAL_MIN);
+            branch(*this, x, INT_VAR_MIN_MIN, INT_VAL_MIN);
+            branch(*this, y, INT_VAR_MIN_MIN, INT_VAL_MIN);
         }
 
         SquarePacking(bool share, SquarePacking& sp) : Script(share, sp) {
@@ -58,7 +62,9 @@ class SquarePacking : public Script {
         }
 
         virtual void print(std::ostream& os) const {
-            os << "SquarePacking" << std::endl;
+            for (int i = 0; i < N; ++i) {
+                os << "(" << x[i] << ", " << y[i] << ")" << std::endl;
+            }
         }
 };
 
