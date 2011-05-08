@@ -137,9 +137,13 @@ class SquarePacking : public Script {
 
 
             // Step 5: Branching heuristics
-            branch(*this, s, INT_VAL_MIN);
-            branch(*this, x, INT_VAR_MIN_MIN, INT_VAL_MIN);
-            branch(*this, y, INT_VAR_MIN_MIN, INT_VAL_MIN);
+            branch(*this, s, INT_VAL_MIN); // (5a) Branch on s first
+            // (5c) INT_VAR_NONE means going through the array in order, that
+            // is from the biggest to the smallest square
+            // (5d) INT_VAL_MIN chooses the minimum value, that is placing it
+            // from left to right and top to botom.
+            branch(*this, x, INT_VAR_NONE, INT_VAL_MIN); // (5b) First assign x-coordinates.             
+            branch(*this, y, INT_VAR_NONE, INT_VAL_MIN); // (5b) then y-coordinates. 
         }
 
         SquarePacking(bool share, SquarePacking& sp) : Script(share, sp) {
