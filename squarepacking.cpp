@@ -38,8 +38,8 @@ class SquarePacking : public Script {
             }
 
             // Step 2: No overlapping between squares, expressed with reification.
-            for (int i = 0; i < N; i++) {
-               for (int j = i+1; j < N; j++) {
+            for (int i = 0; i < N-1; i++) {
+               for (int j = i+1; j < N-1; j++) {
                    rel(*this, (x[i] + size(i) <= x[j]) || (x[j] + size(j) <= x[i]) ||
                        (y[i] + size(i) <= y[j]) || (y[j] + size(j) <= y[i]));  
                 }
@@ -47,36 +47,62 @@ class SquarePacking : public Script {
 
             // Step 3: Sum of square sizes for every row and column less than s, expressed with reification.
 
-            IntArgs sizes(N);
-            for (int i = 0; i < N; ++i) {
+            IntArgs sizes(N-1);
+            for (int i = 0; i < N-1; ++i) {
                 sizes[i] = size(i);
             }
 
             for (int col = 0; col < s.max(); ++col) {
-                BoolVarArgs bx(*this, N, 0, 1);
-                for (int i = 0; i < N; ++i) {
+                BoolVarArgs bx(*this, N-1, 0, 1);
+                for (int i = 0; i < N-1; ++i) {
                     dom(*this, y[i], col - size(i) + 1, col, bx[i]);
                 }
                 linear(*this, sizes, bx, IRT_LQ, s);
             }
 
             for (int col = 0; col < s.max(); ++col) {
-                BoolVarArgs bx(*this, N, 0, 1);
-                for (int i = 0; i < N; ++i) {
+                BoolVarArgs bx(*this, N-1, 0, 1);
+                for (int i = 0; i < N-1; ++i) {
                     dom(*this, x[i], col - size(i) + 1, col, bx[i]);
                 }
                 linear(*this, sizes, bx, IRT_LQ, s);
-            }
+             }
 
             // Step 4: Additional propagators
             
             // Step 4.1: Problem decomposition
 
             // Step 4.2: Symmetry removal
+            
+            rel(*this, x[0] <= ((s - N)/2));
+            rel(*this, y[0] <= ((s - N)/2));
+
 
             // Step 4.3: Empty strip dominance
 
             // Step 4.4: Ignoring size 1 squares
+
+            // bool occupied[s.val()+1][s.val()+1];
+            // memset(occupied, 0, sizeof(occupied));
+// 
+            // for (int i = 0; i < N; ++i) {
+                // for (int j = 0; j < size(i); ++j) {
+                    // for (int k = 0; k < size(i); ++k) {
+                        // occupied[x[i].val()+j][y[i].val()+k] = true;
+                    // }
+                // }
+            // }
+// 
+            // for (int i = 0; i < s.val(); ++i) {
+                // for (int j = 0; j < s.val(); ++j) {
+                    // if (!occupied[i][j]) {
+                        // rel(*this, x[N-1] == i);
+                        // rel(*this, x[N-1] == i);
+                        // i = s.val();
+                        // break;
+                    // }
+                // }
+            // }
 
 
             // Step 5: Branching heuristics
@@ -104,7 +130,7 @@ class SquarePacking : public Script {
             char output[s.val()+1][s.val()+1];
             memset(output, 0, sizeof(output));
 
-            for (int i = 0; i < N; ++i) {
+            for (int i = 0; i < N-1; ++i) {
                 for (int j = 0; j < size(i); ++j) {
                     for (int k = 0; k < size(i); ++k) {
                         output[x[i].val()+j][y[i].val()+k] = size(i);
@@ -112,10 +138,17 @@ class SquarePacking : public Script {
                 }
             }
 
-            for (int i = 0; i < s.val()+1; ++i) {
-                for (int j = 0; j < s.val()+1; ++j) {
-                    if (output[i][j] == 0)
+            bool one = false;
+            for (int i = 0; i < s.val(); ++i) {
+                for (int j = 0; j < s.val(); ++j) {
+                    if (output[i][j] == 0) {
+                        if (!one) {
+                            one = true;
+                            printf(" 1");
+                        }
+                        else 
                         printf("  ");
+                    }
                     else
                         printf("%2d", output[i][j]);
                 }
