@@ -176,7 +176,7 @@ class SquarePacking : public Script {
 
 int main(int argc, char* argv[]) {
     SizeOptions opt("SquarePacking");
-    opt.size(10);
+    opt.size(6);
     opt.parse(argc,argv);
     N = opt.size();
     Script::run<SquarePacking, DFS, SizeOptions>(opt);

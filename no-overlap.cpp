@@ -86,30 +86,24 @@ class NoOverlap : public Propagator {
         // Perform propagation
         virtual ExecStatus propagate(Space& home, const ModEventDelta&) {
             for (int i = 0; i < x.size(); ++i) {
-                if (x[i].assigned()) {
+                if (x[i].assigned() && y[i].assigned()) {
                     for (int j = 0; j < x.size(); ++j) {
-                        if (i != j) {
-                            for (int k = 0; k < w[i]; ++k) {
-                                if (x[j].nq(home, x[i].val() + k) == Int::ME_INT_FAILED)
-                                    return ES_FAILED;
+                        if (i == j) continue;
+
+                        if (y[j].assigned() && (y[i].val() > y[j].val() && y[i].val() < y[j].val() + h[j])) {
+                            for (int k = x[i].val() - w[j]; k <= x[i].val() + w[i]; ++k) {
+                                GECODE_ME_CHECK(x[j].nq(home, k));
+                            }
+                        }
+                        if (x[j].assigned() && (x[i].val() > x[j].val() && x[i].val() < x[j].val() + w[j])) {
+                            for (int k = y[i].val() - h[j]; k <= y[i].val() + h[i]; ++k) {
+                                GECODE_ME_CHECK(y[j].nq(home, k));
                             }
                         }
                     }
                 }
             }
 
-            for (int i = 0; i < y.size(); ++i) {
-                if (y[i].assigned()) {
-                    for (int j = 0; j < y.size(); ++j) {
-                        if (i != j) {
-                            for (int k = 0; k < h[i]; ++k) {
-                                if (y[j].nq(home, y[i].val() + k) == Int::ME_INT_FAILED)
-                                    return ES_FAILED;
-                            }
-                        }
-                    }
-                }
-            }
 
             bool subsumed = true;
             for (int i = 0; i < x.size() && subsumed; ++i) {
