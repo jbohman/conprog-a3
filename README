@@ -1,0 +1,10 @@
+Squarepacking
+=============
+make squarepacking
+./squarepacking N (0 <= N <= 17)
+
+Squarepacking with custom no-overlay operator
+=============================================
+make squarepacking_custom
+./squarepacking_custom N (0 <= N <= 10)
+

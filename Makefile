@@ -5,3 +5,6 @@ squarepacking: squarepacking.cpp
 
 squarepacking_custom: squarepacking_custom.cpp no-overlap.cpp
 	g++ $(options) squarepacking_custom.cpp -o squarepacking_custom
+
+clean:
+	rm squarepacking squarepacking_custom
